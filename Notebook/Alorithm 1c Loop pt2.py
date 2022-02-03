@@ -19,8 +19,8 @@ import matplotlib.pyplot as plt
 
 # %% [markdown]
 # ### Load Data
-
-dataset = pd.read_csv(r"C:\Users\xieya\Documents\GitHub\Mushrooms\DATA\mushrooms.csv")
+dataset = pd.read_csv(r"C:\Users\yxie367\Documents\GitHub\Mushrooms\DATA\mushrooms.csv")
+#dataset = pd.read_csv(r"C:\Users\xieya\Documents\GitHub\Mushrooms\DATA\mushrooms.csv")
 
 # %% [markdown]
 # ### View Data and Informations
@@ -163,7 +163,8 @@ for j in randnum:
     from tensorflow.keras.layers import InputLayer, Dense
 
     # %%
-    tf.random.set_seed(j)
+    # tf.random.set_seed(j)
+    tf.random.set_random_seed(j)
 
     # %%
     model1 = Sequential([
@@ -365,8 +366,7 @@ for j in randnum:
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import InputLayer, Dense
 
-    # %%
-    tf.random.set_seed(j)
+    tf.random.set_random_seed(j)
 
     # %%
     model2 = Sequential([
@@ -444,7 +444,10 @@ for j in randnum:
     for i in range(0,len(X_df2)):
         # KL divergence
         p = X_df2.loc[i,"X_pred"]
-        kl = -(p*math.log(p) + (1-p)*math.log(1-p))
+        if p > 0:
+            kl = -(p*math.log(p) + (1-p)*math.log(1-p))
+        else:
+            kl = 1
         table2.loc[i,"KL_div"] = kl
         # absolute distance
         abs_dist = 2*abs(0.5-p)
@@ -523,7 +526,7 @@ for j in randnum:
     nn2 = table2.drop(["abs_distance","correctness"], axis=1)
     nn2["conf"] = alpha2 + theta2 * nn2["KL_div"]
 
-    nn2
+    # nn2
 
     # %%
     # Determing higher confidence NN and choosing that arm
@@ -532,14 +535,14 @@ for j in randnum:
         if nn1.loc[i,"conf"] > nn2.loc[i,"conf"]:
             ans.loc[i,"y_pred"] = nn1.loc[i,"y_pred"]
             ans.loc[i,"NN"] = 1
-            ans.loc["conf"] = nn1.loc[i,"conf"]
+            ans.loc[i,"conf"] = nn1.loc[i,"conf"]
         else:
             ans.loc[i,"y_pred"] = nn2.loc[i,"y_pred"]
             ans.loc[i,"NN"] = 2
-            ans.loc["conf"] = nn2.loc[i,"conf"]
+            ans.loc[i,"conf"] = nn2.loc[i,"conf"]
 
 
-    ans
+    # ans
 
     # %% [markdown]
     # #### Comparing performance
@@ -579,7 +582,12 @@ for j in randnum:
     total_error_2 += cost2
     total_error_comb += cost3
 
+    print(f"Run {run} complete!")
     run+=1
 
 print(record)
 print(f"Average error count for NN1:{total_error_1/num_trials}, NN2:{total_error_2/num_trials}, Combined:{total_error_comb/num_trials}")
+
+#%%
+print(wrong_record)
+# %%
