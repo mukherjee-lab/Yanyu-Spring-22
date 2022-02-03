@@ -20,13 +20,6 @@ import matplotlib.pyplot as plt
 # %% [markdown]
 # ### Load Data
 
-# %%
-# DATA_PATH = r"C:\Users\xieya\Documents\GitHub\Mushrooms\DATA"
-# FILE_NAME = 'mushrooms.csv'
-# def load_data(data_path=DATA_PATH, file_name=FILE_NAME):
-#     csv_path = os.path.join(data_path, file_name)
-#     return pd.read_csv(csv_path)
-
 dataset = pd.read_csv(r"C:\Users\xieya\Documents\GitHub\Mushrooms\DATA\mushrooms.csv")
 
 # %% [markdown]
@@ -41,7 +34,7 @@ dataset.info()
 # %%
 edible, poisonous = dataset['class'].value_counts()
 
-print("Edible:\t  ", edible,"\nPoisonous:", poisonous)
+# print("Edible:\t  ", edible,"\nPoisonous:", poisonous)
 
 # %%
 # Categorical to numerical
@@ -73,6 +66,9 @@ total_error_comb = 0
 randnum = np.arange(2,44,4)
 num_trials = len(randnum)
 record = ""
+wrong_record = ""
+run = 1
+
 # %% Data cleaning
 from sklearn.model_selection import train_test_split
 X_white = pd.DataFrame()
@@ -86,10 +82,6 @@ for i in range(0,len(X)):
     else:
         X_not_white = X_not_white.append(X.iloc[i,:])
         y_not_white = y_not_white.append(pd.Series(y.iloc[i]))
-
-# %%
-
-# print(X_test_white)
 
 
 # %% Data cleaning pt2
@@ -130,9 +122,9 @@ for j in randnum:
     X_valid1, X_train1 = X_train_full1[:500], X_train_full1[500:]
     y_valid1, y_train1 = y_train_full1[:500], y_train_full1[500:]
 
-    print("X_train:", X_train1.shape[0], "y_train", y_train1.shape[0])
-    print("X_valid: ", X_valid1.shape[0], "y_valid ", y_valid1.shape[0])
-    print("X_test: ", X_test.shape[0], "y_test ", X_test.shape[0])
+    # print("X_train:", X_train1.shape[0], "y_train", y_train1.shape[0])
+    # print("X_valid: ", X_valid1.shape[0], "y_valid ", y_valid1.shape[0])
+    # print("X_test: ", X_test.shape[0], "y_test ", X_test.shape[0])
 
 
     # %% [markdown]
@@ -219,7 +211,7 @@ for j in randnum:
 
     # %%
     results1 = model1.evaluate(X_test1, y_test)
-    print("test loss, test acc:", results1)
+    # print("test loss, test acc:", results1)
 
     # %% [markdown]
     # ### Make Some Predictions
@@ -309,8 +301,8 @@ for j in randnum:
     reg_model1 = LinearRegression().fit(x_reg1,y_reg1)
 
     # %%
-    print('intercept(alpha):', reg_model1.intercept_)
-    print('slope(theta):', reg_model1.coef_)
+    # print('intercept(alpha):', reg_model1.intercept_)
+    # print('slope(theta):', reg_model1.coef_)
 
     # %% [markdown]
     # # NN2 Odor - Almond (a)
@@ -332,9 +324,9 @@ for j in randnum:
     X_valid2, X_train2 = X_train_full2[:500], X_train_full2[500:]
     y_valid2, y_train2 = y_train_full2[:500], y_train_full2[500:]
 
-    print("X_train:", X_train2.shape[0], "y_train", y_train2.shape[0])
-    print("X_valid: ", X_valid2.shape[0], "y_valid ", y_valid2.shape[0])
-    print("X_test: ", X_test.shape[0], "y_test ", X_test.shape[0])
+    # print("X_train:", X_train2.shape[0], "y_train", y_train2.shape[0])
+    # print("X_valid: ", X_valid2.shape[0], "y_valid ", y_valid2.shape[0])
+    # print("X_test: ", X_test.shape[0], "y_test ", X_test.shape[0])
 
 
     # %% [markdown]
@@ -422,7 +414,7 @@ for j in randnum:
 
     # %%
     results2 = model2.evaluate(X_test2, y_test2)
-    print("test loss, test acc:", results2)
+    # print("test loss, test acc:", results2)
 
     # %% [markdown]
     # ### Make Some Predictions
@@ -505,8 +497,8 @@ for j in randnum:
     reg_model2 = LinearRegression().fit(x_reg2,y_reg2)
 
     # %%
-    print('intercept(alpha):', reg_model2.intercept_)
-    print('slope(theta):', reg_model2.coef_)
+    # print('intercept(alpha):', reg_model2.intercept_)
+    # print('slope(theta):', reg_model2.coef_)
 
     # %% [markdown]
     # ## Algorithm C: It = argmax(Ct,i)
@@ -539,8 +531,13 @@ for j in randnum:
     for i in range(0,len(nn1)):
         if nn1.loc[i,"conf"] > nn2.loc[i,"conf"]:
             ans.loc[i,"y_pred"] = nn1.loc[i,"y_pred"]
+            ans.loc[i,"NN"] = 1
+            ans.loc["conf"] = nn1.loc[i,"conf"]
         else:
             ans.loc[i,"y_pred"] = nn2.loc[i,"y_pred"]
+            ans.loc[i,"NN"] = 2
+            ans.loc["conf"] = nn2.loc[i,"conf"]
+
 
     ans
 
@@ -567,17 +564,22 @@ for j in randnum:
     # Combined performance
     cost3 = 0
     for i in range(0,len(nn1)):
+        nn = ans.loc[i,"NN"]
+        nn_conf = ans.loc[i,"conf"]
         if ans.loc[i,"y_pred"] != ans.loc[i,"y_actual"]:
             cost3 += 1
+            wrong_record = wrong_record + (f"Run:{run} - Wrong NN:{nn}, Conf:{nn_conf}") + "\n"
         else:
             pass
 
     # %%
-    record = record+(f"Error count for NN1:{cost1}, NN2:{cost2}, Combined:{cost3}") + "\n"
+    record = record+(f"Run:{run} - Error count for NN1:{cost1}, NN2:{cost2}, Combined:{cost3}") + "\n"
 
     total_error_1 += cost1
     total_error_2 += cost2
     total_error_comb += cost3
+
+    run+=1
 
 print(record)
 print(f"Average error count for NN1:{total_error_1/num_trials}, NN2:{total_error_2/num_trials}, Combined:{total_error_comb/num_trials}")
