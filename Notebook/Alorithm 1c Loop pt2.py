@@ -45,7 +45,7 @@ edible, poisonous = dataset['class'].value_counts()
 #print("0 - Edible:   ", edible,"\n1 - Poisonous:", poisonous)
 
 # %% [markdown]
-# # NN1 Gill Color - Black (k)
+# # NN1 Stalk Root - Rooted (r)
 
 # %% [markdown]
 # ### Split Dataset
@@ -521,10 +521,10 @@ for j in randnum:
     # %%
     # Creating NN tables
     nn1 = table1.drop(["abs_distance","correctness"], axis=1)
-    nn1["conf"] = alpha1 + theta1 * nn1["KL_div"]
+    nn1["conf"] = 1 + theta1 * nn1["KL_div"]
 
     nn2 = table2.drop(["abs_distance","correctness"], axis=1)
-    nn2["conf"] = alpha2 + theta2 * nn2["KL_div"]
+    nn2["conf"] = 1 + theta2 * nn2["KL_div"]
 
     # nn2
 
@@ -589,5 +589,5 @@ print(record)
 print(f"Average error count for NN1:{total_error_1/num_trials}, NN2:{total_error_2/num_trials}, Combined:{total_error_comb/num_trials}")
 
 #%%
-print(wrong_record)
+# print(wrong_record)
 # %%
